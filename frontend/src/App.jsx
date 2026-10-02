@@ -117,7 +117,7 @@ function App() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/enquiries",
+             "https://accounts-finance.vercel.app/api/enquiries",
         {
           method: "POST",
           headers: {

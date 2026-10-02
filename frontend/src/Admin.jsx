@@ -22,7 +22,7 @@ function Admin({ onLogout }) {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/enquiries",
+  "https://accounts-finance.vercel.app/api/enquiries",
         {
           method: "GET",
           headers: {
