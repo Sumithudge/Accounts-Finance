@@ -163,7 +163,7 @@ function App() {
           <a href="#home" className="brand">
 
             <img
-        src="./images/logo.png"
+        src="/images/logo.png"
         alt="Abhishek Gore & Associates"
         className="header-logo"
       />
@@ -868,7 +868,7 @@ function App() {
           <div className="footer-brand">
 
              <img
-        src="../images/logo.png"
+        src="/images/logo.png"
         alt="Abhishek Gore & Associates"
         className="footer-logo"
       />

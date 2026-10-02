@@ -58,7 +58,7 @@ function AdminLogin({ onLogin }) {
       <div className="admin-login-card">
 
         <img
-        src="./images/logo.png"
+        src="/images/logo.png"
         alt="Abhishek Gore & Associates"
         className="header-logo"
       />
