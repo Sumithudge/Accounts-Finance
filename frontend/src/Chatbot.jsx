@@ -46,10 +46,11 @@ const documentLists = {
   "GST Registration & Return Filing": [
     "PAN Card",
     "Aadhaar Card",
-    "Business registration / constitution proof",
+    "Shop Act License",
+    "Place of Business proof",
     "Address proof",
-    "Bank details",
-    "Digital signature, where applicable",
+    "If any document is in another person's name, NOC/consent letter is required",
+    "Any two of the above three supporting documents",
     "Previous GST records, if applicable"
   ],
 
@@ -134,12 +135,14 @@ function Chatbot() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState("welcome");
   const [selectedService, setSelectedService] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
     message: ""
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -147,12 +150,14 @@ function Chatbot() {
   const resetChat = () => {
     setStep("welcome");
     setSelectedService("");
+
     setForm({
       name: "",
       phone: "",
       email: "",
       message: ""
     });
+
     setSubmitting(false);
     setSubmitted(false);
     setError("");
@@ -170,6 +175,7 @@ function Chatbot() {
 
     setForm((prev) => ({
       ...prev,
+
       message:
         prev.message ||
         `I need help with ${selectedService}.`
@@ -187,9 +193,11 @@ function Chatbot() {
         `${API_URL}/api/enquiries`,
         {
           method: "POST",
+
           headers: {
             "Content-Type": "application/json"
           },
+
           body: JSON.stringify({
             name: form.name,
             phone: form.phone,
@@ -234,10 +242,14 @@ function Chatbot() {
     `Hello Abhishek Gore & Associates, I need help with ${selectedService || "your services"}.`
   );
 
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+  const callUrl = `tel:${CALL_NUMBER}`;
+
   const renderWelcome = () => (
     <>
       <div className="chatbot-greeting">
         <strong>Hello! 👋</strong>
+
         <p>
           I'm your 24/7 Accounts Assistant.
           Select a service and I’ll show you the
@@ -251,13 +263,13 @@ function Chatbot() {
         className="chatbot-primary-button"
         onClick={() => setStep("services")}
       >
-        View Filing & Service List
+        View Filing &amp; Service List
         <span>→</span>
       </button>
 
       <div className="chatbot-contact-row">
         <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
+          href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           className="chatbot-contact-button whatsapp"
@@ -266,7 +278,7 @@ function Chatbot() {
         </a>
 
         <a
-          href={`tel:${CALL_NUMBER}`}
+          href={callUrl}
           className="chatbot-contact-button call"
         >
           Call Us
@@ -344,9 +356,7 @@ function Chatbot() {
 
         <div className="chatbot-contact-row">
           <a
-            href={
-              `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`
-            }
+            href={whatsappUrl}
             target="_blank"
             rel="noreferrer"
             className="chatbot-contact-button whatsapp"
@@ -355,7 +365,7 @@ function Chatbot() {
           </a>
 
           <a
-            href={`tel:${CALL_NUMBER}`}
+            href={callUrl}
             className="chatbot-contact-button call"
           >
             Call Us
@@ -453,15 +463,16 @@ function Chatbot() {
           {submitting
             ? "Sending..."
             : "Submit Query"}
-          {!submitting && <span>→</span>}
+
+          {!submitting && (
+            <span>→</span>
+          )}
         </button>
       </form>
 
       <div className="chatbot-contact-row">
         <a
-          href={
-            `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`
-          }
+          href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           className="chatbot-contact-button whatsapp"
@@ -470,7 +481,7 @@ function Chatbot() {
         </a>
 
         <a
-          href={`tel:${CALL_NUMBER}`}
+          href={callUrl}
           className="chatbot-contact-button call"
         >
           Call Us
@@ -494,7 +505,9 @@ function Chatbot() {
           ✓
         </div>
 
-        <strong>Query received</strong>
+        <strong>
+          Query received
+        </strong>
 
         <p>
           Thank you. Your enquiry has been sent to
@@ -505,9 +518,7 @@ function Chatbot() {
 
       <div className="chatbot-contact-row stacked">
         <a
-          href={
-            `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`
-          }
+          href={whatsappUrl}
           target="_blank"
           rel="noreferrer"
           className="chatbot-contact-button whatsapp"
@@ -516,10 +527,10 @@ function Chatbot() {
         </a>
 
         <a
-          href={`tel:${CALL_NUMBER}`}
+          href={callUrl}
           className="chatbot-contact-button call"
         >
-          Call Abhishek Gore & Associates
+          Call Abhishek Gore &amp; Associates
         </a>
       </div>
 
@@ -533,13 +544,14 @@ function Chatbot() {
     </>
   );
 
-  const content = {
-    welcome: renderWelcome,
-    services: renderServices,
-    documents: renderDocuments,
-    query: renderQuery,
-    success: renderSuccess
-  }[step]();
+  const content =
+    {
+      welcome: renderWelcome,
+      services: renderServices,
+      documents: renderDocuments,
+      query: renderQuery,
+      success: renderSuccess
+    }[step]();
 
   return (
     <div className="chatbot-widget">
@@ -572,7 +584,7 @@ function Chatbot() {
           </div>
 
           <div className="chatbot-footer">
-            Abhishek Gore & Associates
+            Abhishek Gore &amp; Associates
           </div>
         </div>
       )}
@@ -580,12 +592,15 @@ function Chatbot() {
       <button
         type="button"
         className={`chatbot-float-button ${open ? "open" : ""}`}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() =>
+          setOpen((value) => !value)
+        }
         aria-label="Open Accounts Assistant"
       >
         <span className="chatbot-float-icon">
           {open ? "×" : "💬"}
         </span>
+
         {!open && (
           <span className="chatbot-float-text">
             Need Help?
