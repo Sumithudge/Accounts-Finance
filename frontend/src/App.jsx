@@ -116,8 +116,12 @@ function App() {
     setSent(false);
 
     try {
+      const apiUrl =
+        import.meta.env.VITE_API_URL ||
+        "http://localhost:5000";
+
       const response = await fetch(
-             "https://accounts-finance.vercel.app/api/enquiries",
+        `${apiUrl}/api/enquiries`,
         {
           method: "POST",
           headers: {
