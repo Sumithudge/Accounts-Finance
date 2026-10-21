@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./styles.css";
 import Admin from "./Admin";
 import AdminLogin from "./AdminLogin";
+import Chatbot from "./Chatbot";
 
 const services = [
   {
@@ -945,6 +946,8 @@ function App() {
         </div>
 
       </footer>
+
+    <Chatbot />
 
     </div>
   );
