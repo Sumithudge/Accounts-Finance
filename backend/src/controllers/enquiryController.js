@@ -1,4 +1,5 @@
 import Enquiry from "../models/Enquiry.js";
+import { sendEnquiryNotification } from "../services/emailService.js";
 
 export const createEnquiry = async (req, res) => {
   try {
@@ -58,6 +59,18 @@ export const createEnquiry = async (req, res) => {
 
     console.log("Enquiry saved successfully!");
     console.log("MongoDB ID:", savedEnquiry._id);
+
+    // -----------------------------
+    // EMAIL NOTIFICATION
+    // -----------------------------
+    // Do not fail the enquiry submission if the email provider is unavailable.
+    try {
+      await sendEnquiryNotification(savedEnquiry);
+      console.log("Enquiry notification email sent successfully.");
+    } catch (emailError) {
+      console.error("ERROR SENDING ENQUIRY NOTIFICATION:");
+      console.error(emailError);
+    }
 
     // -----------------------------
     // Response
