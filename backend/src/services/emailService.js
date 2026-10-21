@@ -22,7 +22,8 @@ export const sendEnquiryNotification = async (enquiry) => {
   const {
     RESEND_API_KEY,
     ENQUIRY_NOTIFICATION_EMAIL,
-    EMAIL_FROM
+    EMAIL_FROM,
+    ADMIN_URL = "https://gore-and-associate.vercel.app/admin"
   } = process.env;
 
   if (!RESEND_API_KEY || !ENQUIRY_NOTIFICATION_EMAIL || !EMAIL_FROM) {
@@ -76,6 +77,7 @@ export const sendEnquiryNotification = async (enquiry) => {
     "Submitted: " + submittedAt,
     "Enquiry ID: " + (enquiry._id?.toString() || "N/A"),
     "",
+    "Review Enquiry: " + ADMIN_URL,
     "Please review and follow up with the client."
   ].join("\n");
 
@@ -151,7 +153,12 @@ export const sendEnquiryNotification = async (enquiry) => {
     "</div>",
     "</td></tr>",
 
-    '<tr><td style="padding:24px 30px 0 30px;">',
+    '<tr><td style="padding:26px 30px 0 30px;text-align:center;">',
+    '<a href="' + escapeHtml(ADMIN_URL) + '" style="display:inline-block;background:#b58a2a;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:13px 24px;border-radius:8px;">Review Enquiry &rarr;</a>',
+    '<div style="margin-top:10px;font-size:12px;color:#7a858f;">Sign in to the admin dashboard to review the enquiry.</div>',
+    "</td></tr>",
+
+    '<tr><td style="padding:22px 30px 0 30px;">',
     '<div style="padding:12px 14px;background:#f3f5f7;border-radius:8px;font-size:12px;color:#66727d;">',
     '<strong style="color:#424d57;">Enquiry ID:</strong> ' + safeEnquiryId,
     "</div>",
