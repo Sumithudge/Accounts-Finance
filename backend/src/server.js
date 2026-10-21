@@ -10,7 +10,11 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = (
+// -----------------------------
+// CORS CONFIGURATION
+// -----------------------------
+
+const envOrigins = (
   process.env.CLIENT_URLS ||
   process.env.CLIENT_URL ||
   ""
@@ -19,27 +23,66 @@ const allowedOrigins = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow non-browser/server-to-server requests.
-      if (!origin) {
-        return callback(null, true);
-      }
+const allowedOrigins = new Set([
+  // Production frontend
+  "https://gore-and-associate.vercel.app",
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+  // Local Vite development
+  "http://localhost:5173",
 
-      return callback(
-        new Error(`CORS blocked origin: ${origin}`)
-      );
-    },
-    credentials: true
-  })
-);
+  // Optional origins from environment variables
+  ...envOrigins
+]);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests without an Origin header.
+    // This is useful for server-to-server requests.
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+
+    // Do not throw an Express error for a blocked browser origin.
+    // Simply omit CORS permission.
+    return callback(null, false);
+  },
+
+  credentials: true,
+
+  methods: [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS"
+  ],
+
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
+  ],
+
+  optionsSuccessStatus: 204
+};
+
+// CORS must run before API routes and before
+// middleware that could reject the OPTIONS request.
+app.use(cors(corsOptions));
+
+// -----------------------------
+// BODY PARSER
+// -----------------------------
 
 app.use(express.json());
+
+// -----------------------------
+// MONGODB CONNECTION
+// -----------------------------
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
@@ -55,21 +98,43 @@ const connectDB = async () => {
   console.log("MongoDB connected successfully");
 };
 
-// Make sure MongoDB is connected before handling API requests
+// -----------------------------
+// DATABASE MIDDLEWARE
+// -----------------------------
+
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (error) {
-    console.error("MongoDB connection error:", error);
+    console.error(
+      "MongoDB connection error:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
       message: "Database connection failed"
     });
   }
 });
 
-app.use("/api/enquiries", enquiryRoutes);
-app.use("/api/auth", authRoutes);
+// -----------------------------
+// API ROUTES
+// -----------------------------
+
+app.use(
+  "/api/enquiries",
+  enquiryRoutes
+);
+
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+// -----------------------------
+// EXPORT APP
+// -----------------------------
 
 export default app;
