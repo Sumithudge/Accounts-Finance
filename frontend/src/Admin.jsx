@@ -3,8 +3,130 @@ import "./admin.css";
 
 function Admin({ onLogout }) {
   const [enquiries, setEnquiries] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reviewError, setReviewError] = useState("");
+
+  const fetchReviews = async () => {
+    setReviewsLoading(true);
+    setReviewError("");
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      if (!token) {
+        onLogout();
+        return;
+      }
+
+      const response = await fetch(
+        "https://accounts-finance.vercel.app/api/reviews/admin",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        localStorage.removeItem("adminToken");
+        onLogout();
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to load reviews");
+      }
+
+      setReviews(Array.isArray(data.reviews) ? data.reviews : []);
+    } catch (error) {
+      console.error("Error loading reviews:", error);
+
+      setReviewError(
+        error.message || "Unable to load reviews."
+      );
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const updateReview = async (id, approved) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const response = await fetch(
+        `https://accounts-finance.vercel.app/api/reviews/${id}/approval`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ approved })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to update review"
+        );
+      }
+
+      setReviews((prev) =>
+        prev.map((review) =>
+          review._id === id
+            ? { ...review, approved }
+            : review
+        )
+      );
+    } catch (error) {
+      console.error("Review update error:", error);
+      setReviewError(
+        error.message || "Unable to update review."
+      );
+    }
+  };
+
+  const deleteReview = async (id) => {
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const response = await fetch(
+        `https://accounts-finance.vercel.app/api/reviews/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to delete review"
+        );
+      }
+
+      setReviews((prev) =>
+        prev.filter((review) => review._id !== id)
+      );
+    } catch (error) {
+      console.error("Review delete error:", error);
+      setReviewError(
+        error.message || "Unable to delete review."
+      );
+    }
+  };
 
   const fetchEnquiries = async () => {
     setLoading(true);
@@ -78,6 +200,7 @@ function Admin({ onLogout }) {
 
   useEffect(() => {
     fetchEnquiries();
+    fetchReviews();
   }, []);
 
   const logout = () => {
@@ -401,6 +524,92 @@ function Admin({ onLogout }) {
             </div>
           )}
 
+
+        {/* REVIEWS */}
+
+        <section className="admin-reviews-section">
+
+          <div className="admin-title-row admin-subsection-title">
+            <div>
+              <div className="admin-section-label">CLIENT FEEDBACK</div>
+              <h2>Reviews</h2>
+              <p>Approve genuine client feedback before it appears on the public website.</p>
+            </div>
+
+            <div className="admin-count">
+              <strong>{reviews.filter((review) => !review.approved).length}</strong>
+              <span>Pending Reviews</span>
+            </div>
+          </div>
+
+          {reviewError && (
+            <div className="admin-error">
+              <strong>Review error:</strong> {reviewError}
+            </div>
+          )}
+
+          {reviewsLoading ? (
+            <div className="admin-empty-card">
+              Loading reviews...
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="admin-empty-card">
+              <div className="admin-empty-icon">★</div>
+              <h2>No client reviews yet</h2>
+              <p>New ratings and reviews submitted from the website will appear here.</p>
+            </div>
+          ) : (
+            <div className="admin-reviews-grid">
+              {reviews.map((review) => (
+                <article className="admin-review-card" key={review._id}>
+                  <div className="admin-review-top">
+                    <div>
+                      <h3>{review.name}</h3>
+                      <span>{review.service}</span>
+                    </div>
+
+                    <div className="admin-review-status">
+                      {review.approved ? "Published" : "Pending"}
+                    </div>
+                  </div>
+
+                  <div className="admin-review-stars">
+                    {"★".repeat(review.rating)}
+                    {"☆".repeat(5 - review.rating)}
+                    <strong>{review.rating}/5</strong>
+                  </div>
+
+                  <p className="admin-review-text">
+                    {review.review}
+                  </p>
+
+                  <small>
+                    {review.createdAt ? new Date(review.createdAt).toLocaleString() : ""}
+                  </small>
+
+                  <div className="admin-review-actions">
+                    <button
+                      type="button"
+                      className={review.approved ? "review-hide-button" : "review-approve-button"}
+                      onClick={() => updateReview(review._id, !review.approved)}
+                    >
+                      {review.approved ? "Hide Review" : "Approve Review"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="review-delete-button"
+                      onClick={() => deleteReview(review._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+        </section>
       </main>
 
     </div>
