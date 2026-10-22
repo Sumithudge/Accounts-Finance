@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./styles.css";
 import Admin from "./Admin";
 import AdminLogin from "./AdminLogin";
@@ -61,10 +61,46 @@ function App() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [reviews, setReviews] = useState([]);
+  const [reviewAverage, setReviewAverage] = useState(0);
+  const [reviewLoading, setReviewLoading] = useState(true);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSent, setReviewSent] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  const [reviewForm, setReviewForm] = useState({
+    name: "",
+    service: "",
+    rating: 5,
+    review: ""
+  });
+
   const [adminLoggedIn, setAdminLoggedIn] =
     useState(
       Boolean(localStorage.getItem("adminToken"))
     );
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/reviews`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.message || "Unable to load reviews");
+        }
+
+        setReviews(Array.isArray(data.reviews) ? data.reviews : []);
+        setReviewAverage(Number(data.average || 0));
+      } catch (error) {
+        console.error("Review loading error:", error);
+      } finally {
+        setReviewLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
 
   if (window.location.pathname === "/admin") {
 
@@ -115,6 +151,63 @@ function App() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleReviewChange = (event) => {
+    const { name, value } = event.target;
+
+    setReviewForm((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const submitReview = async (event) => {
+    event.preventDefault();
+
+    setReviewSubmitting(true);
+    setReviewSent(false);
+    setReviewError("");
+
+    try {
+      const response = await fetch(`${API_URL}/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: reviewForm.name,
+          service: reviewForm.service,
+          rating: Number(reviewForm.rating),
+          review: reviewForm.review
+        })
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || "Unable to submit your review"
+        );
+      }
+
+      setReviewSent(true);
+      setReviewForm({
+        name: "",
+        service: "",
+        rating: 5,
+        review: ""
+      });
+    } catch (error) {
+      console.error("Review submission error:", error);
+
+      setReviewError(
+        error.message ||
+          "Unable to submit your review. Please try again."
+      );
+    } finally {
+      setReviewSubmitting(false);
+    }
   };
 
   const submitForm = async (e) => {
@@ -206,6 +299,10 @@ function App() {
 
             <a href="#resources">
               Resources
+            </a>
+
+            <a href="#reviews">
+              Reviews
             </a>
 
             <a href="#contact">
@@ -586,6 +683,216 @@ function App() {
 
       </section>
 
+
+      {/* ================= REVIEWS ================= */}
+
+      <section
+        id="reviews"
+        className="reviews-section"
+      >
+        <div className="container">
+
+          <div className="section-heading">
+            <div className="gold-heading">
+              <span></span>
+              CLIENT REVIEWS
+              <span></span>
+            </div>
+
+            <h2>
+              Trusted by Our Clients
+            </h2>
+
+            <p>
+              Real feedback from clients who have used our tax,
+              <br />
+              compliance, accounting and financial services.
+            </p>
+          </div>
+
+          <div className="reviews-summary">
+            <div className="reviews-score-card">
+              <strong>
+                {reviewAverage > 0 ? reviewAverage.toFixed(1) : "—"}
+              </strong>
+
+              <div className="reviews-stars" aria-label="Average client rating">
+                {"★".repeat(Math.round(reviewAverage || 0))}
+                {"☆".repeat(Math.max(0, 5 - Math.round(reviewAverage || 0)))}
+              </div>
+
+              <span>
+                {reviews.length} approved client review{reviews.length === 1 ? "" : "s"}
+              </span>
+            </div>
+
+            <div className="reviews-summary-copy">
+              <strong>Share your experience</strong>
+              <p>
+                Clients can rate our service from 1 to 5 stars and leave a
+                review. New reviews are checked by our team before appearing
+                publicly.
+              </p>
+            </div>
+          </div>
+
+          {reviewLoading ? (
+            <div className="reviews-empty">
+              Loading client reviews...
+            </div>
+          ) : reviews.length === 0 ? (
+            <div className="reviews-empty">
+              No approved reviews yet. Be one of our first clients to share
+              your experience.
+            </div>
+          ) : (
+            <div className="reviews-grid">
+              {reviews.map((item) => (
+                <article
+                  className="review-card"
+                  key={item._id}
+                >
+                  <div className="review-card-top">
+                    <div className="review-avatar">
+                      {String(item.name || "C").charAt(0).toUpperCase()}
+                    </div>
+
+                    <div>
+                      <strong>{item.name}</strong>
+                      <span>{item.service}</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="review-card-stars"
+                    aria-label={item.rating + " out of 5 stars"}
+                  >
+                    {"★".repeat(item.rating)}
+                    {"☆".repeat(5 - item.rating)}
+                  </div>
+
+                  <p>
+                    “{item.review}”
+                  </p>
+
+                  <small>
+                    Client review published by Abhishek Gore & Associates
+                  </small>
+                </article>
+              ))}
+            </div>
+          )}
+
+          <div className="review-form-card">
+            <div className="review-form-intro">
+              <span>CLIENT FEEDBACK</span>
+              <h3>How was your experience?</h3>
+              <p>
+                Tell us what service you used and rate your experience.
+                <br />
+                Please submit feedback only if you have actually received our service.
+              </p>
+            </div>
+
+            <form onSubmit={submitReview} className="review-form">
+
+              <div className="review-form-row">
+
+                <div className="form-group">
+                  <label>Your Name *</label>
+                  <input
+                    required
+                    type="text"
+                    name="name"
+                    value={reviewForm.name}
+                    placeholder="Enter your name"
+                    onChange={handleReviewChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Service Used *</label>
+                  <select
+                    required
+                    name="service"
+                    value={reviewForm.service}
+                    onChange={handleReviewChange}
+                  >
+                    <option value="">Select a service</option>
+                    {allServices.map((service) => (
+                      <option key={service} value={service}>
+                        {service}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+              </div>
+
+              <div className="review-rating-field">
+                <label>Your Rating *</label>
+
+                <div className="review-rating-picker">
+                  {[1, 2, 3, 4, 5].map((value) => (
+                    <button
+                      type="button"
+                      key={value}
+                      className={"review-star-button " + (Number(reviewForm.rating) >= value ? "selected" : "")}
+                      onClick={() =>
+                        setReviewForm((prev) => ({
+                          ...prev,
+                          rating: value
+                        }))
+                      }
+                      aria-label={"Give " + value + " out of 5 stars"}
+                    >
+                      ★
+                    </button>
+                  ))}
+                  <span>
+                    {reviewForm.rating}/5
+                  </span>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Review *</label>
+                <textarea
+                  required
+                  rows="5"
+                  name="review"
+                  value={reviewForm.review}
+                  placeholder="Tell us about your experience..."
+                  onChange={handleReviewChange}
+                />
+              </div>
+
+              {reviewError && (
+                <div className="review-form-error">
+                  {reviewError}
+                </div>
+              )}
+
+              {reviewSent && (
+                <div className="review-form-success">
+                  Thank you! Your review has been submitted and will appear after our team approves it.
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={reviewSubmitting}
+              >
+                {reviewSubmitting ? "Submitting Review..." : "Submit Review"}
+                {!reviewSubmitting && <span>→</span>}
+              </button>
+
+            </form>
+          </div>
+
+        </div>
+      </section>
 
       {/* ================= CONTACT ================= */}
 
