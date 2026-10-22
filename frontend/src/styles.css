@@ -3890,3 +3890,117 @@ textarea {
     font-size: 18px;
   }
 }
+
+
+/* =====================================================
+   SMART CHATBOT — RICH QUESTION/ANSWER UI
+===================================================== */
+
+.smart-chatbot-message {
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.smart-chatbot-message-title {
+  margin-bottom: 6px;
+  color: #062b4d;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.smart-chatbot-row.user .smart-chatbot-message-title {
+  color: rgba(255,255,255,0.78);
+}
+
+.smart-chatbot-service-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  margin: 0 0 9px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #fff6d9;
+  color: #795f1e;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.smart-chatbot-rich-section {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: #f6f9fb;
+  border: 1px solid #e6edf2;
+}
+
+.smart-chatbot-rich-section strong {
+  display: block;
+  margin-bottom: 7px;
+  color: #062b4d;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.smart-chatbot-rich-section ul,
+.smart-chatbot-rich-section ol {
+  margin: 0;
+  padding-left: 18px;
+  color: #42566a;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.smart-chatbot-rich-section li + li {
+  margin-top: 3px;
+}
+
+.smart-chatbot-row.user .smart-chatbot-rich-section {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.smart-chatbot-row.user .smart-chatbot-rich-section strong,
+.smart-chatbot-row.user .smart-chatbot-rich-section li {
+  color: #ffffff;
+}
+
+.smart-chatbot-chips {
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.smart-chatbot-chips button {
+  border-color: #d9e1e8;
+  background: #ffffff;
+  color: #17324b;
+}
+
+.smart-chatbot-composer {
+  box-shadow: 0 -5px 20px rgba(4, 32, 55, 0.04);
+}
+
+.smart-chatbot-intro {
+  background:
+    radial-gradient(circle at right top, rgba(239, 187, 62, 0.13), transparent 35%),
+    #ffffff;
+}
+
+.smart-chatbot-intro p {
+  color: #5e7082;
+}
+
+@media (max-width: 560px) {
+  .smart-chatbot-panel {
+    width: calc(100vw - 16px);
+    height: min(760px, calc(100vh - 72px));
+  }
+
+  .smart-chatbot-widget {
+    right: 8px;
+    bottom: 8px;
+  }
+}
