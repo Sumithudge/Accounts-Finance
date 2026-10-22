@@ -703,11 +703,12 @@ function buildAnswer(input, service, intent) {
 
   if (data) {
     return {
-      text: data.what,
+      text: `${data.what} Here are the typical records to keep ready as well.`,
       title: `${service}`,
       service,
+      documents: data.documents,
       options: [
-        { label: "Documents", value: `What documents are required for ${service}?` },
+        { label: "Explain", value: `What is ${service}?` },
         { label: "Process", value: `What is the process for ${service}?` },
         { label: "Fees", value: `What are the fees for ${service}?` },
         { label: "Talk to expert", action: "lead" }
@@ -717,8 +718,15 @@ function buildAnswer(input, service, intent) {
 
   if (intent === "service") {
     return {
-      text: "Tell me the problem in your own words and I’ll suggest the closest service. Examples: “I need to file ITR”, “I got a GST notice”, “I need bookkeeping”, “I need payroll”, or “I need a project report for a loan”.",
-      options: SUGGESTIONS
+      text: "I can suggest the closest service from your message. Start with ITR, GST, notice assistance, TDS/TCS, PF, PT, accounting, payroll, project report, or business plan.",
+      title: "Choose what you need help with",
+      options: [
+        ...SERVICE_NAMES.slice(0, 6).map((name) => ({
+          label: name,
+          value: `I need ${name}`
+        })),
+        { label: "More services", value: "Show all services" }
+      ]
     };
   }
 
@@ -730,9 +738,7 @@ function buildAnswer(input, service, intent) {
 
 function Chatbot() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState(() => [
-    makeBotMessage(buildGreeting())
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [selectedService, setSelectedService] = useState("");
@@ -749,6 +755,7 @@ function Chatbot() {
 
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     if (bodyRef.current) {
@@ -837,8 +844,19 @@ function Chatbot() {
       return;
     }
 
-    if (intent === "service" && detectedService === "") {
-      addBotReply(buildAnswer(text, detectedService, intent));
+      if (intent === "service" && detectedService === "") {
+      if (/(all services|list.*services|services do you provide|what services)/i.test(text)) {
+        addBotReply({
+          text: "We currently support the following services:",
+          title: "All services",
+          options: SERVICE_NAMES.map((name) => ({
+            label: name,
+            value: `Tell me about ${name}`
+          }))
+        });
+      } else {
+        addBotReply(buildAnswer(text, detectedService, intent));
+      }
       return;
     }
 
@@ -935,9 +953,8 @@ function Chatbot() {
   };
 
   const resetChat = () => {
-    setMessages([
-      makeBotMessage(buildGreeting())
-    ]);
+    setMessages([makeBotMessage(buildGreeting())]);
+    startedRef.current = true;
     setInput("");
     setSelectedService("");
     setShowLeadForm(false);
@@ -976,7 +993,7 @@ function Chatbot() {
 
           <div className="smart-chatbot-body" ref={bodyRef}>
             <div className="smart-chatbot-intro">
-              <span className="smart-chatbot-intro-badge">AI-STYLE SERVICE GUIDE</span>
+              <span className="smart-chatbot-intro-badge">SMART SERVICE ASSISTANT</span>
               <h3>Ask anything about our services</h3>
               <p>
                 Try: “What documents are required for ITR?” or “I received a GST notice.”
@@ -1191,8 +1208,18 @@ function Chatbot() {
         type="button"
         className={`smart-chatbot-fab ${open ? "active" : ""}`}
         onClick={() => {
-          setOpen((value) => !value);
-          window.setTimeout(() => inputRef.current?.focus(), 150);
+          const nextOpen = !open;
+
+          setOpen(nextOpen);
+
+          if (nextOpen && !startedRef.current) {
+            startedRef.current = true;
+            setMessages([makeBotMessage(buildGreeting())]);
+          }
+
+          if (nextOpen) {
+            window.setTimeout(() => inputRef.current?.focus(), 150);
+          }
         }}
         aria-label="Open Gore Assist"
       >
