@@ -42,6 +42,13 @@ const allServices = [
   "Business Plan & Financial Projections"
 ];
 
+const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV
+    ? "http://localhost:5000"
+    : "https://accounts-finance.vercel.app")
+).replace(/\/$/, "");
+
 function App() {
   const [form, setForm] = useState({
     name: "",
@@ -117,9 +124,7 @@ function App() {
     setSent(false);
 
     try {
-      const apiUrl =
-        import.meta.env.VITE_API_URL ||
-        "http://localhost:5000";
+      const apiUrl = API_URL;
 
       const response = await fetch(
         `${apiUrl}/api/enquiries`,
@@ -149,7 +154,7 @@ function App() {
       console.error(error);
 
       alert(
-        "Unable to submit enquiry. Please check that your backend server is running."
+        "Unable to submit enquiry. Please try again. If the problem continues, contact us on WhatsApp or by phone."
       );
     } finally {
       setLoading(false);
