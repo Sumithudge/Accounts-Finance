@@ -609,3 +609,147 @@
   }
 
 }
+
+/* =========================================
+   REVIEWS MODERATION
+========================================= */
+
+.admin-reviews-section {
+  margin-top: 65px;
+  padding-top: 45px;
+  border-top: 1px solid #dfe7ed;
+}
+
+.admin-subsection-title {
+  margin-bottom: 25px;
+}
+
+.admin-subsection-title h2 {
+  margin: 7px 0 6px;
+  color: #18384f;
+  font-size: 28px;
+}
+
+.admin-reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-review-card {
+  padding: 22px;
+  border: 1px solid #dce5eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 22px rgba(6, 43, 77, 0.05);
+}
+
+.admin-review-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.admin-review-top h3 {
+  margin: 0;
+  color: #17324b;
+  font-size: 17px;
+}
+
+.admin-review-top span {
+  display: block;
+  margin-top: 5px;
+  color: #6b7f90;
+  font-size: 12px;
+}
+
+.admin-review-status {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #fff6d9;
+  color: #795f1e;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.admin-review-stars {
+  margin: 16px 0 12px;
+  color: #d6a62e;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.admin-review-stars strong {
+  margin-left: 8px;
+  color: #5d7080;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.admin-review-text {
+  min-height: 72px;
+  margin: 0 0 12px;
+  padding: 13px;
+  border-radius: 9px;
+  background: #f7fafc;
+  color: #526b7e;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.admin-review-card > small {
+  color: #99a8b5;
+  font-size: 10px;
+}
+
+.admin-review-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 17px;
+  padding-top: 15px;
+  border-top: 1px solid #edf1f4;
+}
+
+.admin-review-actions button {
+  border: none;
+  border-radius: 7px;
+  padding: 9px 12px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.review-approve-button {
+  background: #15803d;
+}
+
+.review-hide-button {
+  background: #475569;
+}
+
+.review-delete-button {
+  background: #b91c1c;
+}
+
+.admin-review-actions button:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 800px) {
+  .admin-reviews-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-review-actions {
+    flex-direction: column;
+  }
+
+  .admin-review-actions button {
+    width: 100%;
+  }
+}
