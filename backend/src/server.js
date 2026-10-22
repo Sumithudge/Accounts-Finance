@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 
 dotenv.config();
 
@@ -131,6 +132,11 @@ app.use(
 app.use(
   "/api/auth",
   authRoutes
+);
+
+app.use(
+  "/api/reviews",
+  reviewRoutes
 );
 
 // -----------------------------
