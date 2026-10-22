@@ -487,7 +487,7 @@ function findBestService(input, currentService = "") {
 function getIntent(input) {
   const value = normalize(input);
 
-  if (/\b(hi|hello|hey|namaste|good morning|good afternoon|good evening)\b/.test(value)) {
+  if (/^(hi|hello|hey|namaste|good morning|good afternoon|good evening)[!. ,]*$/.test(value)) {
     return "greeting";
   }
 
